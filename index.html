@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh sách chương trình khuyến mại</title>
+    <style>
+        /* CSS giữ nguyên hoặc thêm CSS phong cách Flat Design */
+        body {
+            font-family: Arial, sans-serif;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .filter-inputs {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .category-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        .category-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 20px;
+            border: none;
+            background-color: #f0f0f0;
+            cursor: pointer;
+        }
+        .category-button img {
+            max-width: 20px;
+            margin-right: 5px;
+        }
+        .category-button.active {
+            background-color: #333;
+            color: white;
+        }
+        .promotions-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 0 20px;
+        }
+        .promotion-card {
+            border: 1px solid #ddd;
+            padding: 10px;
+        }
+        .promotion-card img {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Danh sách chương trình khuyến mãi</h1>
+
+    <div class="filter-inputs">
+        <input type="text" class="search-input" placeholder="Tìm kiếm theo tên sản phẩm" oninput="filterPromotions()">
+        <div class="category-buttons">
+            <!-- Nội dung của danh sách nút sẽ được tạo bằng JavaScript -->
+        </div>
+    </div>
+
+    <div class="promotions-container" id="promotions-list">
+        <!-- Nội dung của danh sách sẽ được tạo bằng JavaScript -->
+    </div>
+
+    <script>
+        // JavaScript để lấy dữ liệu từ API và hiển thị lên danh sách khuyến mại
+        const promotionsListElement = document.getElementById("promotions-list");
+        const categoryButtonsContainer = document.querySelector(".category-buttons");
+        let promotionsData = []; // Lưu trữ dữ liệu sản phẩm để tìm kiếm nhanh
+
+        // Hàm hiển thị thông tin chi tiết của một sản phẩm (giữ nguyên)
+        function displayPromotionDetail(promotion) {
+            // Tạo phần tử HTML hiển thị thông tin chi tiết
+            const detailElement = document.createElement("div");
+            detailElement.innerHTML = `
+                <h3 class="promotion-name">${promotion.name}</h3>
+                <p class="promotion-description">${promotion.description}</p>
+                <!-- Thêm các thông tin khác của sản phẩm vào đây -->
+            `;
+            return detailElement;
+        }
+
+        // Tạo nội dung HTML từ mảng thông tin khuyến mại và thêm vào trang (giữ nguyên)
+        function displayPromotions(promotionsArray) {
+            promotionsListElement.innerHTML = '';
+
+            promotionsArray.forEach(promotion => {
+                const promotionItemElement = document.createElement("div");
+                promotionItemElement.classList.add("promotion-item");
+
+                const thumbnailElement = document.createElement("img");
+                thumbnailElement.classList.add("promotion-thumbnail");
+                thumbnailElement.src = promotion.thumbnail;
+                promotionItemElement.appendChild(thumbnailElement);
+
+                const promotionInfoElement = document.createElement("div");
+                promotionInfoElement.classList.add("promotion-info");
+                promotionInfoElement.innerHTML = `<h3 class="promotion-name">${promotion.name}</h3><p class="promotion-description">${promotion.description}</p>`;
+                promotionItemElement.appendChild(promotionInfoElement);
+
+                promotionItemElement.addEventListener("click", () => {
+                    // Khi click vào một sản phẩm, gọi API để lấy chi tiết thông tin sản phẩm dựa vào ID
+                    fetch(`https://example.com/api/products/${promotion.id}`) // Thay thế bằng URL thực tế của API chi tiết sản phẩm
+                        .then(response => response.json())
+                        .then(data => {
+                            const detailElement = displayPromotionDetails(data);
+                            promotionItemElement.appendChild(detailElement);
+                        })
+                        .catch(error => {
+                            console.error('Lỗi khi gọi API chi tiết sản phẩm:', error);
+                        });
+                });
+
+                promotionsListElement.appendChild(promotionItemElement);
+            });
+        }
+
+        // Gọi API để lấy danh sách các sản phẩm
+        const apiToken = "Token AIU4S9lfn9vz_SsvrpC3EXPKA5FHgd0I"; // Thay thế bằng token của bạn
+        const productListUrl = "https://api.accesstrade.vn/v1/offers_informations/merchant_list"; // Thay thế bằng URL thực tế của API danh sách sản phẩm
+        const logoProductListUrl = "https://api.accesstrade.vn/v1/offers_informations/merchant_list"; // Thay thế bằng URL thực tế của API danh sách sản phẩm có logo
+
+        fetch(productListUrl, {
+            method: "GET",
+            headers: {
+                "Authorization": `Bearer ${apiToken}`,
+                "Content-Type": "application/json"
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                promotionsData = data; // Lưu dữ liệu vào biến promotionsData
+                displayPromotions(data);
+            })
+            .catch(error => {
+                console.error('Lỗi khi gọi API danh sách sản phẩm:', error);
+            });
+
+        // Lọc chương trình khuyến mại theo category (giữ nguyên)
+        function filterPromotions(categoryFilter = '') {
+            fetch(`https://example.com/api/products?category=${category}`) // Thay thế bằng URL thực tế của API lọc sản phẩm theo category
+                .then(response => response.json())
+                .then(data => {
+                    // Hiển thị danh sách sản phẩm lọc theo category từ API
+                    displayPromotions(data);
+                })
+                .catch(error => {
+                    console.error('Lỗi khi gọi API lọc sản phẩm theo category:', error);
+                });
+        }
+
+        // Tạo nút lọc danh mục từ danh sách sản phẩm và hiển thị logo
+        function displayCategoryButtons(data) {
+           
+            const categories = [...new Set(data.map(product => product.category))];
+
+            categories.forEach(category => {
+                const categoryButton = document.createElement("button");
+                categoryButton.classList.add("category-button");
+                categoryButton.setAttribute("data-category", category);
+                categoryButton.onclick = () => filterPromotions();
+                
+                // Lấy logo từ sản phẩm đầu tiên thuộc category
+                const productWithLogo = data.find(product => product.category === category && product.logo);
+                if (productWithLogo) {
+                    const logoImg = document.createElement("img");
+                    logoImg.src = productWithLogo.logo;
+                    logoImg.alt = category;
+                    categoryButton.appendChild(logoImg);
+                } else {
+                    categoryButton.textContent = category;
+                }
+
+                categoryButtonsContainer.appendChild(categoryButton);
+            });
+        }
+
+        // Tìm kiếm sản phẩm ngay khi nhập liệu vào ô tìm kiếm (giữ nguyên)
+        function filterPromotions() {
+            // ...
+        }
+
+        // Xử lý khi người dùng click vào nút lọc (giữ nguyên)
+        const categoryButtons = document.querySelectorAll(".category-button");
+        categoryButtons.forEach(button => {
+            button.addEventListener("click", function() {
+                categoryButtons.forEach(btn => btn.classList.remove("active"));
+                this.classList.add("active");
+                filterPromotions(this.getAttribute("data-category"));
+            });
+        });
+    </script>
+</body>
+</html>
